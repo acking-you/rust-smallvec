@@ -1,12 +1,12 @@
-use crate::{smallvec, SmallVec};
-
-use core::hash::Hasher;
-use core::iter::FromIterator;
-
 use alloc::borrow::ToOwned;
 use alloc::boxed::Box;
 use alloc::rc::Rc;
-use alloc::{vec, vec::Vec};
+use alloc::vec;
+use alloc::vec::Vec;
+use core::hash::Hasher;
+use core::iter::FromIterator;
+
+use crate::{smallvec, SmallVec};
 
 #[test]
 pub fn test_zero() {
@@ -587,10 +587,7 @@ fn test_from() {
 #[test]
 fn test_from_slice() {
     assert_eq!(&SmallVec::<u32, 2>::from(&[1][..])[..], [1]);
-    assert_eq!(
-        &SmallVec::<u32, 2>::from(&[1, 2, 3][..])[..],
-        [1, 2, 3]
-    );
+    assert_eq!(&SmallVec::<u32, 2>::from(&[1, 2, 3][..])[..], [1, 2, 3]);
 }
 
 #[test]
@@ -801,10 +798,14 @@ fn test_write() {
 #[cfg(feature = "serde")]
 #[test]
 fn test_serde() {
-    use bincode::{config, deserialize};
+    use bincode::{deserialize, options, Options};
     let mut small_vec: SmallVec<i32, 2> = SmallVec::new();
     small_vec.push(1);
-    let encoded = config().limit(100).serialize(&small_vec).unwrap();
+    let encoded = options()
+        .with_fixint_encoding()
+        .with_limit(100)
+        .serialize(&small_vec)
+        .unwrap();
     let decoded: SmallVec<i32, 2> = deserialize(&encoded).unwrap();
     assert_eq!(small_vec, decoded);
     small_vec.push(2);
@@ -812,7 +813,11 @@ fn test_serde() {
     small_vec.push(3);
     small_vec.push(4);
     // Check again after spilling.
-    let encoded = config().limit(100).serialize(&small_vec).unwrap();
+    let encoded = options()
+        .with_fixint_encoding()
+        .with_limit(100)
+        .serialize(&small_vec)
+        .unwrap();
     let decoded: SmallVec<i32, 2> = deserialize(&encoded).unwrap();
     assert_eq!(small_vec, decoded);
 }
@@ -980,6 +985,7 @@ fn collect_from_iter() {
 
     impl<I: Iterator> Iterator for IterNoHint<I> {
         type Item = I::Item;
+
         fn next(&mut self) -> Option<Self::Item> {
             self.0.next()
         }
