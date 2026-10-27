@@ -1,26 +1,24 @@
 [package]
-name = "smallvec-fuzz"
-version = "0.1.0"
-authors = ["Dawid Ciężarkiewicz <dpc@dpc.pw>"]
-edition = "2021"
+name = "fuzzer"
+version = "0.0.0"
+authors.workspace = true
+edition.workspace = true
+repository.workspace = true
+license.workspace = true
+description = "Fuzzer for SmallVec"
 publish = false
 
 [package.metadata]
 cargo-fuzz = true
 
-[features]
-afl_fuzz = ["afl"]
-honggfuzz_fuzz = ["honggfuzz"]
-
-
 [dependencies]
-honggfuzz = { version = "0.5.47", optional = true }
-afl = { version = "0.4", optional = true }
+arbitrary = { version = "1.4", features = ["derive"] }
+libfuzzer-sys = "0.4"
 smallvec = { path = ".." }
 
-[workspace]
-members = ["."]
-
 [[bin]]
-name = "smallvec_ops"
-path = "fuzz_targets/smallvec_ops.rs"
+name = "main"
+path = "fuzz_targets/main.rs"
+test = false
+doc = false
+bench = false

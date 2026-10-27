@@ -1,33 +1,129 @@
 [package]
 name = "smallvec"
-version = "2.0.0-alpha.12"
-edition = "2021"
-rust-version = "1.83"
-authors = ["The Servo Project Developers"]
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/servo/rust-smallvec"
+version = "2.0.0-beta.3"
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
 description = "'Small vector' optimization: store up to a small number of items on the stack"
 keywords = ["small", "vec", "vector", "stack", "no_std"]
 categories = ["data-structures"]
-readme = "README.md"
-documentation = "https://docs.rs/smallvec/"
+exclude = [".gitignore", "tests/", "fuzz/", "benches/", ".github/", "rustfmt.toml", ".vscode/"]
+
+[profile.bench]
+lto = "fat"
+codegen-units = 1
+opt-level = 3
+debug = false
+strip = true
+
+[profile.callgrind]
+inherits = "bench"
+debug = true
+strip = false
 
 [features]
-std = []
-specialization = []
-may_dangle = []
-extract_if = []
+allocator-api = []
+allocator-api2 = ["allocator-api", "dep:allocator-api2"]
+internals = []
+malloc-size-of = ["dep:malloc_size_of"]
+may-dangle = []
+proptest = ["dep:proptest", "std"]
+rayon = ["dep:rayon", "std"]
 serde = ["dep:serde_core"]
+specialization = []
+std = []
 
 [dependencies]
+allocator-api2 = { version = "0.4", optional = true, features = [
+    "alloc",
+], default-features = false }
+arbitrary = { version = "1", optional = true, default-features = false }
+borsh = { version = "1", optional = true, features = [
+    "derive",
+    "unstable__schema",
+], default-features = false }
 bytes = { version = "1", optional = true, default-features = false }
-serde_core = { version = "1.0.229", optional = true, default-features = false }
-malloc_size_of = { version = "0.1.1", optional = true, default-features = false }
+defmt = { version = "1", optional = true, default-features = false }
+encase = { version = "0.13", optional = true, default-features = false }
+equivalent = { version = "1", optional = true, default-features = false }
+malloc_size_of = { version = "0.1", optional = true, default-features = false }
+proptest = { version = "1", optional = true, features = [
+    "std",
+], default-features = false }
+rayon = { version = "1", optional = true, default-features = false }
+serde_core = { version = "1", optional = true, default-features = false }
+smallvec-macro = { version = "0.0.0", path = "./macro", default-features = false }
+zeroize = { version = "1", optional = true, default-features = false }
 
 [dev-dependencies]
-# Keep the serde v1 test format; bincode 3 does not offer this API.
-bincode = "1.3.3"
+serde_test = "1"
+criterion = "0.8"
+iai-callgrind = "0.16"
+
+[[test]]
+name = "arbitrary"
+required-features = ["arbitrary"]
+
+[[test]]
+name = "borsh"
+required-features = ["borsh"]
+
+[[test]]
+name = "bytes"
+required-features = ["bytes"]
+
+[[test]]
+name = "encase"
+required-features = ["encase"]
+
+[[test]]
+name = "equivalent"
+required-features = ["equivalent"]
+
+[[test]]
+name = "maydangle"
+required-features = ["may-dangle"]
+
+[[test]]
+name = "rayon"
+required-features = ["rayon"]
+
+[[test]]
+name = "serde"
+required-features = ["serde"]
+
+[[test]]
+name = "std"
+required-features = ["std"]
+
+[[test]]
+name = "zeroize"
+required-features = ["zeroize"]
+
+[[bench]]
+name = "bench"
+path = "benches/bench.rs"
+harness = false
+
+[[bench]]
+name = "callgrind"
+path = "benches/callgrind.rs"
+harness = false
 
 [package.metadata.docs.rs]
 all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
+
+[workspace]
+package.edition = "2024"
+package.authors = ["The Servo Project Developers"]
+package.license = "MIT OR Apache-2.0"
+package.repository = "https://github.com/servo/rust-smallvec"
+package.rust-version = "1.86"
+resolver = "3"
+members = [
+    ".",
+    "fuzz"
+]

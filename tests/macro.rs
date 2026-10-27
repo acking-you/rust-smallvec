@@ -1,13 +1,17 @@
-/// This file tests `smallvec!` without actually having the macro in scope.
-/// This forces any recursion to use a `$crate` prefix to reliably find itself.
+#![allow(deprecated)]
+
+use smallvec::{
+    SmallVec,
+    smallvec
+};
 
 #[test]
 fn smallvec() {
-    let mut vec: smallvec::SmallVec<i32, 2>;
+    let mut vec: SmallVec<i32, 2>;
 
     macro_rules! check {
         ($init:tt) => {
-            vec = smallvec::smallvec! $init;
+            vec = smallvec! $init;
             assert_eq!(*vec, *vec! $init);
         }
     }
