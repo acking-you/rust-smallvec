@@ -131,8 +131,7 @@ use {
             from_raw_parts_mut
         }
     },
-    newrange::NewRange,
-    smallvec_macro::syntax
+    newrange::NewRange
 };
 pub use {
     error::SmallVecError,
@@ -143,7 +142,7 @@ pub use {
         splice::Splice
     }
 };
-#[cfg_attr(feature = "internals", syntax(pub))]
+#[cfg_attr(feature = "internals", smallvec_macro::syntax(pub))]
 use {
     locatedlength::LocatedLength,
     rawsmallvec::RawSmallVec
@@ -1351,7 +1350,7 @@ impl<Item, const INLINE: usize, Heap: Allocator> SmallVec<Item, INLINE, Heap> {
         }
     }
 
-    #[cfg_attr(feature = "allocator-api", syntax(pub))]
+    #[cfg_attr(feature = "allocator-api", smallvec_macro::syntax(pub))]
     const fn new_in(allocator: Heap) -> SmallVec<Item, INLINE, Heap> {
         Self {
             length: LocatedLength::new(0, false),
@@ -1360,7 +1359,7 @@ impl<Item, const INLINE: usize, Heap: Allocator> SmallVec<Item, INLINE, Heap> {
         }
     }
 
-    #[cfg_attr(feature = "allocator-api", syntax(pub))]
+    #[cfg_attr(feature = "allocator-api", smallvec_macro::syntax(pub))]
     fn try_with_capacity_in(capacity: usize, allocator: Heap) -> Result<Self, SmallVecError> {
         let mut this = Self::new_in(allocator);
         if capacity > Self::inline_size() && !Self::IS_ZST {
@@ -1376,7 +1375,7 @@ impl<Item, const INLINE: usize, Heap: Allocator> SmallVec<Item, INLINE, Heap> {
         Ok(this)
     }
 
-    #[cfg_attr(feature = "allocator-api", syntax(pub))]
+    #[cfg_attr(feature = "allocator-api", smallvec_macro::syntax(pub))]
     fn with_capacity_in(capacity: usize, allocator: Heap) -> Self {
         Self::try_with_capacity_in(capacity, allocator).unwrap_or_else(SmallVecError::handle)
     }
@@ -1502,7 +1501,7 @@ impl<Heap: Allocator> Drop for DropDealloc<'_, Heap> {
     }
 }
 
-#[cfg_attr(feature = "may-dangle", syntax(unsafe))]
+#[cfg_attr(feature = "may-dangle", smallvec_macro::syntax(unsafe))]
 impl<#[cfg_attr(feature = "may-dangle", may_dangle)] Item, const INLINE: usize, Heap: Allocator>
     Drop for SmallVec<Item, INLINE, Heap>
 {
@@ -1892,7 +1891,7 @@ where Item: Proptest + Debug
 
     fn arbitrary_with(args: Self::Parameters) -> Self::Strategy {
         create_vec(Item::arbitrary(), args)
-            .prop_map(|v: std::vec::Vec<Item>| SmallVec::from_iter(v.into_iter()))
+            .prop_map(|v: std::vec::Vec<Item>| SmallVec::from_iter(v))
     }
 }
 

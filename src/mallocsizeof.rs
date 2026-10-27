@@ -14,9 +14,11 @@ impl<Item, const INLINE: usize, Heap: Allocator> MallocShallowSizeOf
     for SmallVec<Item, INLINE, Heap>
 {
     fn shallow_size_of(&self, ops: &mut MallocSizeOfOps) -> usize {
-        self.spilled()
-            .then(|| unsafe { ops.malloc_size_of(self.as_ptr()) })
-            .unwrap_or_default()
+        if self.spilled() {
+            unsafe { ops.malloc_size_of(self.as_ptr()) }
+        } else {
+            0
+        }
     }
 }
 
